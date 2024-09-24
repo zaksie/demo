@@ -34,12 +34,14 @@ class PostgresDB(GenericDB):
         except e:
             raise e
 
-    def get_all_scans(self):
+    def get_all_scans(self, page_index: int = 0, page_size: int= 10):
         cur = self.conn.cursor()
-        cur.execute(f"SELECT * FROM scan")
-        return cur.fetchall()
+        q = f"WITH r AS (SELECT * FROM scan LIMIT {page_size} OFFSET {page_size * page_index}) SELECT json_agg(r) FROM r "
+        print(q)
+        cur.execute(q)
+        return cur.fetchone()[0]
 
-    def get_all_resources(self, type: Optional[str] = None, scan_id: Optional[int] = None):
+    def get_all_resources(self, type: Optional[str] = None, scan_id: Optional[int] = None, page_index: int = 0, page_size: int= 10):
         cur = self.conn.cursor()
         condition = ''
         if type is not None:
@@ -50,18 +52,15 @@ class PostgresDB(GenericDB):
             condition += f"scan_id={scan_id}"
         if condition != '':
             condition = " WHERE " + condition
-        try:
-            cur.execute(f"SELECT * FROM resource {condition} ")
-        except:
-            return []
-        return cur.fetchall()
+        cur.execute(f"WITH r AS (SELECT * FROM resource {condition} LIMIT {page_size} OFFSET {page_size * page_index}) SELECT json_agg(r) FROM r ")
+        return cur.fetchone()[0]
 
     def get_resource_types(self):
         cur = self.conn.cursor()
         cur.execute("SELECT unnest(enum_range(NULL::resource_types))")
         return [x[0] for x in cur.fetchall()]
 
-    def connect(self):
+    def init(self):
         self.conn = psycopg2.connect(
             host="localhost",
             database="postgres",

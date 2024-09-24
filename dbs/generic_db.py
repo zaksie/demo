@@ -8,10 +8,10 @@ from abc import ABC, abstractmethod
 class GenericDB(ABC):
     def __init__(self):
         self.conn = None
-        self.connect()
+        self.init()
 
     @abstractmethod
-    def connect(self):
+    def init(self):
         pass
 
     @abstractmethod
@@ -23,11 +23,11 @@ class GenericDB(ABC):
         pass
 
     @abstractmethod
-    def get_all_scans(self):
+    def get_all_scans(self, page_index: int = 0, page_size: int= 10):
         pass
 
     @abstractmethod
-    def get_all_resources(self, type: Optional[str] = None, scan_id: Optional[int] = None):
+    def get_all_resources(self, type: Optional[str] = None, scan_id: Optional[int] = None, page_index: int = 0, page_size: int= 10):
         pass
 
     @abstractmethod

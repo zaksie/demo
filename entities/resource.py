@@ -12,7 +12,7 @@ class Resource:
     def create(self, resource_model: ResourceModel):
         self.db.insert_resource(resource_model)
 
-    def get_all(self, type: Optional[str] = None, scan_id: Optional[int] = None):
+    def get_all(self, type: Optional[str] = None, scan_id: Optional[int] = None, page_index: int = 0, page_size: int= 10):
         if type is None and scan_id is None:
             raise Exception('Missing at least one parameter')
-        return self.db.get_all_resources(type, scan_id)
+        return self.db.get_all_resources(type, scan_id, page_index, page_size)
